@@ -30,6 +30,7 @@ const SlideDeck = () => {
   const [pizzaVotes, setPizzaVotes] = useState(50); // Scale 0-100 for smoother animation
   const [burgerVotes, setBurgerVotes] = useState(20);
   const [isListening, setIsListening] = useState<ListeningTeam>(null);
+  const [currentVolume, setCurrentVolume] = useState(0); // 0-100 for visualization
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -48,22 +49,25 @@ const SlideDeck = () => {
   // P14: Hierarchy
   const [hierarchyStep, setHierarchyStep] = useState(0);
 
+  // P2: Video Player
+  const [videoEnded, setVideoEnded] = useState(false);
+
   // --- Effects & Helpers ---
 
   useEffect(() => {
     // Reset slide-specific states
-    if (currentSlide === 3) setFeedCount(0);
-    if (currentSlide === 4) setChatGuess(null);
-    if (currentSlide === 5) setTigerTestResult(null);
-    if (currentSlide === 7) setTrainingStep(0);
-    
+    if (currentSlide === 4) setFeedCount(0);
+    if (currentSlide === 5) setChatGuess(null);
+    if (currentSlide === 6) setTigerTestResult(null);
+    if (currentSlide === 8) setTrainingStep(0);
+
     // Cleanup Audio on slide change
-    if (currentSlide !== 6) {
+    if (currentSlide !== 7) {
       stopListening();
     }
 
-    // Auto-play animation for Summary Slide (P9)
-    if (currentSlide === 8) {
+    // Auto-play animation for Summary Slide (P10)
+    if (currentSlide === 9) {
       setProcessStep(0);
       const timer1 = setTimeout(() => setProcessStep(1), 500);
       const timer2 = setTimeout(() => setProcessStep(2), 2000);
@@ -71,8 +75,8 @@ const SlideDeck = () => {
       return () => { clearTimeout(timer1); clearTimeout(timer2); clearTimeout(timer3); };
     }
 
-    // Auto-play animation for Hierarchy Slide (P14)
-    if (currentSlide === 13) {
+    // Auto-play animation for Hierarchy Slide (P13)
+    if (currentSlide === 12) {
       setHierarchyStep(0);
       const timer1 = setTimeout(() => setHierarchyStep(1), 500);
       const timer2 = setTimeout(() => setHierarchyStep(2), 1500);
@@ -107,19 +111,39 @@ const SlideDeck = () => {
 
       const updateVolume = () => {
         if (!analyserRef.current) return;
-        
+
         analyserRef.current.getByteFrequencyData(dataArray);
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
           sum += dataArray[i];
         }
         const average = sum / bufferLength;
-        
-        // Sensitivity factor: adjust 0.5 to make it faster/slower
-        const boost = average * 0.2; 
+
+        // Update volume for visualization (0-100 scale)
+        const volumePercent = Math.min(100, (average / 255) * 100);
+        setCurrentVolume(volumePercent);
+
+        // 阶梯式敏感度：需要达到一定音量才能快速增长
+        // volume < 30: 无增长
+        // volume 30-50: 缓慢增长
+        // volume 50-70: 中速增长
+        // volume 70-80: 快速增长
+        // volume > 80: 最快增长
+        let sensitivity = 0;
+        if (volumePercent > 80) {
+          sensitivity = 1.0; // 最高敏感度
+        } else if (volumePercent > 70) {
+          sensitivity = 0.6;
+        } else if (volumePercent > 50) {
+          sensitivity = 0.3;
+        } else if (volumePercent > 30) {
+          sensitivity = 0.1;
+        }
+
+        const boost = average * 0.15 * sensitivity;
 
         if (team === 'burger') {
-          setBurgerVotes(prev => Math.min(300, prev + boost)); // Max height 300
+          setBurgerVotes(prev => Math.min(300, prev + boost));
         } else {
           setPizzaVotes(prev => Math.min(300, prev + boost));
         }
@@ -146,6 +170,7 @@ const SlideDeck = () => {
       cancelAnimationFrame(animationFrameRef.current);
     }
     setIsListening(null);
+    setCurrentVolume(0);
   };
 
   const toggleReveal = (index: number) => {
@@ -163,9 +188,9 @@ const SlideDeck = () => {
     setTimeout(() => setFeedEffect(null), 800);
   };
 
-  // Drawing Logic (Slide 10)
+  // Drawing Logic (Slide 11)
   useEffect(() => {
-    if (currentSlide === 9 && canvasRef.current) {
+    if (currentSlide === 10 && canvasRef.current) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       if (ctx) {
@@ -178,7 +203,7 @@ const SlideDeck = () => {
   }, [currentSlide]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (currentSlide !== 9) return;
+    if (currentSlide !== 10) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -190,7 +215,7 @@ const SlideDeck = () => {
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || currentSlide !== 9) return;
+    if (!isDrawing || currentSlide !== 10) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -213,34 +238,38 @@ const SlideDeck = () => {
   const slides = [
     // P1: Cover
     { id: 1, type: "cover", bgColor: "bg-gradient-to-br from-indigo-50 to-blue-100" },
-    // P2: Warm-up (Custom Images)
-    { id: 2, type: "reveal", bgColor: "bg-yellow-50" },
-    // P3: Concept
-    { id: 3, type: "senses", bgColor: "bg-pink-50" },
-    // P4: Feeding (Rich Data)
-    { id: 4, type: "feeding", bgColor: "bg-green-50" },
-    // P5: Chat Principle
-    { id: 5, type: "chat_principle", bgColor: "bg-teal-50" },
-    // P6: Pattern
-    { id: 6, type: "pattern", bgColor: "bg-orange-50" },
-    // P7: Neural Network (Mic Enabled)
-    { id: 7, type: "neural", bgColor: "bg-blue-50" },
-    // P8: Unplugged
-    { id: 8, type: "unplugged", bgColor: "bg-purple-50" },
-    // P9: Summary
-    { id: 9, type: "summary_process", bgColor: "bg-slate-50" },
-    // P10: Drawing
-    { id: 10, type: "drawing", bgColor: "bg-white" },
-    // P11: Agents
-    { id: 11, type: "agents", bgColor: "bg-indigo-50" },
-    // P12: Hallucination
-    { id: 12, type: "hallucination", bgColor: "bg-gray-100" },
-    // P13: Suggestions
-    { id: 13, type: "suggestions", bgColor: "bg-red-50" },
-    // P14: Hierarchy
-    { id: 14, type: "hierarchy", bgColor: "bg-gradient-to-b from-slate-50 to-slate-200" },
-    // P15: End
-    { id: 15, type: "end", bgColor: "bg-gradient-to-t from-blue-200 to-white" },
+    // P2: Video Intro
+    { id: 2, type: "video", bgColor: "bg-slate-900" },
+    // P3: Warm-up (Custom Images)
+    { id: 3, type: "reveal", bgColor: "bg-yellow-50" },
+    // P4: Concept
+    { id: 4, type: "senses", bgColor: "bg-pink-50" },
+    // P5: Feeding (Rich Data)
+    { id: 5, type: "feeding", bgColor: "bg-green-50" },
+    // P6: Chat Principle
+    { id: 6, type: "chat_principle", bgColor: "bg-teal-50" },
+    // P7: Pattern
+    { id: 7, type: "pattern", bgColor: "bg-orange-50" },
+    // P8: Neural Network (Mic Enabled)
+    { id: 8, type: "neural", bgColor: "bg-blue-50" },
+    // P9: Unplugged
+    { id: 9, type: "unplugged", bgColor: "bg-purple-50" },
+    // P10: Summary
+    { id: 10, type: "summary_process", bgColor: "bg-slate-50" },
+    // P11: Drawing
+    { id: 11, type: "drawing", bgColor: "bg-white" },
+    // P12: Train AI (魔法时刻：训练自己的AI)
+    { id: 12, type: "train_ai", bgColor: "bg-gradient-to-br from-purple-50 to-pink-50" },
+    // P13: Hierarchy (AI 未来大厦)
+    { id: 13, type: "hierarchy", bgColor: "bg-gradient-to-b from-slate-50 to-slate-200" },
+    // P14: Agents (校园 AI 特工)
+    { id: 14, type: "agents", bgColor: "bg-indigo-50" },
+    // P15: Hallucination
+    { id: 15, type: "hallucination", bgColor: "bg-gray-100" },
+    // P16: Suggestions
+    { id: 16, type: "suggestions", bgColor: "bg-red-50" },
+    // P17: End
+    { id: 17, type: "end", bgColor: "bg-gradient-to-t from-blue-200 to-white" },
   ];
 
   const nextSlide = () => { if (currentSlide < slides.length - 1) setCurrentSlide(c => c + 1); };
@@ -264,6 +293,22 @@ const SlideDeck = () => {
               <div className="h-full bg-blue-500 animate-[width_2s_ease-in-out_infinite]" style={{width: '60%'}}></div>
             </div>
             <p className="text-slate-400 text-sm">正在加载超级大脑...</p>
+          </div>
+        );
+
+      case "video":
+        return (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <h2 className="text-4xl font-bold text-white mb-6">AI 导航视频 🎬</h2>
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-blue-400">
+              <video
+                src="/videos/ai-intro.mp4"
+                className="w-full max-w-3xl"
+                controls
+                onEnded={() => setVideoEnded(true)}
+              />
+            </div>
+            <p className="mt-6 text-blue-300 text-lg">看完视频，猜猜下一位 AI 朋友是谁？</p>
           </div>
         );
 
@@ -497,9 +542,41 @@ const SlideDeck = () => {
         return (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <h2 className="text-4xl font-bold text-slate-800 mb-2">神经网络：谁大声听谁的！</h2>
-            <p className="text-xl text-slate-500 mb-6">游戏：全班大声喊，用声音给 AI 投票！🎤</p>
+            <p className="text-xl text-slate-500 mb-4">游戏：全班大声喊，用声音给 AI 投票！🎤</p>
 
-            <div className="flex items-end justify-center space-x-16 h-72 mb-8">
+            {/* 声波分贝仪 */}
+            <div className="mb-4 w-full max-w-2xl">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-bold text-slate-600">🔊 分贝仪</span>
+                <span className="text-sm font-bold text-slate-600">{Math.round(currentVolume)} dB</span>
+              </div>
+              {/* 分贝条 */}
+              <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-100 ${currentVolume > 70 ? 'bg-red-500' : currentVolume > 40 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                  style={{ width: `${currentVolume}%` }}
+                />
+              </div>
+              {/* 声波可视化 */}
+              <div className="flex items-center justify-center space-x-1 h-12 mt-2">
+                {[...Array(20)].map((_, i) => {
+                  const barHeight = isListening
+                    ? Math.max(4, Math.min(48, (currentVolume / 100) * 48 + Math.random() * 16))
+                    : 4;
+                  return (
+                    <div
+                      key={i}
+                      className={`w-1.5 rounded-full transition-all duration-75 ${
+                        isListening && currentVolume > 50 ? 'bg-blue-500' : 'bg-slate-300'
+                      }`}
+                      style={{ height: `${barHeight}px` }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-end justify-center space-x-16 h-72 mb-4">
               {/* Burger Team */}
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative w-32 flex justify-center items-end h-[300px]">
@@ -714,14 +791,86 @@ const SlideDeck = () => {
                )}
              </div>
              
-             <div className="mt-6 flex items-center space-x-4">
-               <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white animate-pulse">
-                 <Search size={24} />
+             <div className="mt-6 flex flex-col items-center space-y-4">
+               <div className="flex items-center space-x-4">
+                 <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white animate-pulse">
+                   <Search size={24} />
+                 </div>
+                 <div className="bg-white px-6 py-3 rounded-full shadow-md text-slate-700 font-bold">
+                   AI 正在思考... (请老师切换到 Quick, Draw! 网站)
+                 </div>
                </div>
-               <div className="bg-white px-6 py-3 rounded-full shadow-md text-slate-700 font-bold">
-                 AI 正在思考... (请老师切换到 Quick, Draw! 网站)
-               </div>
+               <a
+                 href="https://quickdraw.withgoogle.com"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-bold hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+               >
+                 <span>🎮</span>
+                 <span>体验真正的 AI 画画游戏</span>
+                 <ArrowRight size={18} />
+               </a>
              </div>
+          </div>
+        );
+
+      case "train_ai":
+        return (
+          <div className="flex flex-col items-center justify-center h-full text-center px-12">
+            <div className="mb-4 animate-bounce">
+              <Sparkles size={50} className="text-purple-500" />
+            </div>
+            <h2 className="text-4xl font-black text-slate-800 mb-2">魔法时刻：训练自己的 AI</h2>
+            <p className="text-xl text-slate-600 mb-6">你可以像训练小宠物一样，训练一个专属的 AI 模型！</p>
+
+            <div className="bg-white p-6 rounded-2xl shadow-lg max-w-3xl mb-5 border-3 border-purple-100">
+              <div className="grid grid-cols-3 gap-6 mb-5">
+                <div className="flex flex-col items-center">
+                  <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-2xl">📸</span>
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">收集数据</h3>
+                  <p className="text-xs text-slate-500 mt-1">拍摄多种角度的照片</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-2xl">🎯</span>
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">训练模型</h3>
+                  <p className="text-xs text-slate-500 mt-1">AI 学习识别特征</p>
+                </div>
+                <div className="flex flex-col items-center">
+                  <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-2xl">🚀</span>
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">测试使用</h3>
+                  <p className="text-xs text-slate-500 mt-1">看看 AI 学得怎么样</p>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl">
+                <p className="text-sm text-slate-700 mb-2">💡 <span className="font-bold">你可以训练：</span></p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <span className="bg-white px-3 py-1 rounded-full text-xs text-slate-600 shadow-sm">😊 表情识别</span>
+                  <span className="bg-white px-3 py-1 rounded-full text-xs text-slate-600 shadow-sm">👋 姿势识别</span>
+                  <span className="bg-white px-3 py-1 rounded-full text-xs text-slate-600 shadow-sm">🎵 声音分类</span>
+                  <span className="bg-white px-3 py-1 rounded-full text-xs text-slate-600 shadow-sm">🖼️ 图像分类</span>
+                </div>
+              </div>
+            </div>
+
+            <a
+              href="https://train.aimaker.space/train"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white rounded-full font-bold text-lg hover:from-purple-600 hover:via-pink-600 hover:to-red-600 transition-all shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse"
+            >
+              <span>🪄</span>
+              <span>开始训练你的 AI</span>
+              <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+            </a>
+
+            <p className="mt-3 text-slate-400 text-xs">类似于 Teachable Machine，但更适合中国小朋友使用</p>
           </div>
         );
 
@@ -820,14 +969,14 @@ const SlideDeck = () => {
                 <div className="bg-blue-600 text-white p-6 rounded-b-3xl rounded-t-lg shadow-xl mx-auto w-full border-b-8 border-blue-800">
                   <div className="flex items-center justify-center space-x-3 mb-2">
                      <Cpu size={32} />
-                     <h3 className="text-2xl font-bold">底层：核心地基</h3>
+                     <h3 className="text-2xl font-bold">底层：核心地基（大脑）</h3>
                   </div>
                   <div className="flex justify-center space-x-4 text-blue-100 font-mono text-sm md:text-base">
                     <span className="bg-blue-700 px-3 py-1 rounded">机器学习</span>
                     <span>{'->'}</span>
                     <span className="bg-blue-700 px-3 py-1 rounded">深度学习</span>
                     <span>{'->'}</span>
-                    <span className="bg-blue-700 px-3 py-1 rounded font-bold text-white">大模型 (LLM)</span>
+                    <span className="bg-blue-700 px-3 py-1 rounded font-bold text-white">大语言模型 (LLM)</span>
                   </div>
                 </div>
               </div>
@@ -837,9 +986,9 @@ const SlideDeck = () => {
                 <div className="bg-purple-500 text-white p-5 rounded-lg shadow-lg mx-auto w-[90%] border-b-8 border-purple-700">
                   <div className="flex items-center justify-center space-x-3 mb-2">
                      <Wrench size={28} />
-                     <h3 className="text-2xl font-bold">中层：智能工具</h3>
+                     <h3 className="text-2xl font-bold">中层：智能工具（连接世界）</h3>
                   </div>
-                  <p className="text-purple-100">智能体 (Agents) · 插件 · 自动化工具</p>
+                  <p className="text-purple-100">智能体 (Agents) · 插件 · 工具</p>
                 </div>
               </div>
 
@@ -854,10 +1003,11 @@ const SlideDeck = () => {
                   
                   <div className="flex items-center justify-center space-x-3 mb-2">
                      <Smartphone size={28} />
-                     <h3 className="text-2xl font-bold">上层：精彩应用</h3>
+                     <h3 className="text-2xl font-bold">上层：精彩应用（生活学习）</h3>
                   </div>
                   <div className="flex justify-center space-x-4">
                      <span className="bg-white/20 px-3 py-1 rounded-full">豆包</span>
+                     <span className="bg-white/20 px-3 py-1 rounded-full">即梦AI</span>
                      <span className="bg-white/20 px-3 py-1 rounded-full">ChatGPT</span>
                      <span className="bg-white/20 px-3 py-1 rounded-full">Sora</span>
                   </div>
