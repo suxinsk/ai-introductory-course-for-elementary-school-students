@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, Brain, Bot, Camera, Mic, Sparkles, AlertTriangle, ShieldCheck, Activity, Pencil, Eraser, Volume2, Search, Eye, Fingerprint, MessageSquare, BookOpen, ArrowRight, Settings, FileImage, Film, FileText, Play, Square } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Brain, Bot, Camera, Mic, AlertTriangle, ShieldCheck, Activity, Pencil, Eraser, Volume2, Search, Eye, MessageSquare, BookOpen, ArrowRight, Settings, FileImage, Film, Square } from 'lucide-react';
 
 type ChatGuess = 'correct' | 'wrong' | null;
 type TigerResult = 'cat' | 'tiger' | null;
@@ -274,7 +274,7 @@ const SlideDeck = () => {
     // P10: Summary
     { id: 10, type: "summary_process", bgColor: "bg-slate-50" },
     // P11: Drawing
-    { id: 11, type: "drawing", bgColor: "bg-white" },
+    { id: 11, type: "drawing", bgColor: "bg-sky-50" },
     // P12: Train AI (魔法时刻：训练自己的AI)
     { id: 12, type: "train_ai", bgColor: "bg-gradient-to-br from-purple-50 to-pink-50" },
     // P13: Hierarchy (AI 未来大厦)
@@ -282,7 +282,7 @@ const SlideDeck = () => {
     // P14: Agents (校园 AI 特工)
     { id: 14, type: "agents", bgColor: "bg-indigo-50" },
     // P15: Hallucination
-    { id: 15, type: "hallucination", bgColor: "bg-gray-100" },
+    { id: 15, type: "hallucination", bgColor: "bg-amber-50" },
     // P16: Suggestions
     { id: 16, type: "suggestions", bgColor: "bg-red-50" },
     // P17: End
@@ -333,8 +333,11 @@ const SlideDeck = () => {
 
       case "reveal":
         return (
-          <div className="flex flex-col items-center justify-center h-full px-4">
-            <h2 className="text-5xl font-bold text-slate-800 mb-12">猜猜他们是谁？</h2>
+          <div className="flex flex-col h-full px-4">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">猜猜他们是谁？</h2>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
             <div className="grid grid-cols-3 gap-8 w-full max-w-5xl">
               {[
                 { 
@@ -382,13 +385,17 @@ const SlideDeck = () => {
             <div className="mt-4 bg-blue-100 px-6 py-3 rounded-2xl">
               <p className="text-lg text-blue-800 font-bold">💡 人工智能（AI）= 让机器学会像人一样看、听、思考和做决定的技术</p>
             </div>
+            </div>
           </div>
         );
 
       case "senses":
         return (
-          <div className="flex flex-col items-center justify-center h-full">
-            <h2 className="text-5xl font-bold text-slate-800 mb-8">AI 怎么感知世界？</h2>
+          <div className="flex flex-col h-full">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">AI 怎么感知世界？</h2>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
             <div className="flex items-center justify-center space-x-12 w-full max-w-5xl">
               {/* Human */}
               <div className="flex-1 bg-white p-8 rounded-3xl shadow-lg border-b-8 border-orange-200 text-center">
@@ -440,6 +447,7 @@ const SlideDeck = () => {
               <span className="text-4xl">👶</span>
               <p className="text-2xl text-pink-800 font-bold">AI 就像小宝宝，要吃"数据"才能长大！</p>
             </div>
+            </div>
           </div>
         );
 
@@ -453,9 +461,12 @@ const SlideDeck = () => {
         ];
         
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-5xl font-bold text-slate-800 mb-4">互动：给 AI 喂数据</h2>
-            <p className="text-2xl text-slate-600 mb-10">全班一起喊口号，点击按钮喂饱它！</p>
+          <div className="flex flex-col h-full text-center">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">互动：给 AI 喂数据</h2>
+              <p className="text-2xl text-slate-600">全班一起喊口号，点击按钮喂饱它！</p>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
             
             <div className="flex items-center space-x-20">
               <div className="relative transition-all duration-500">
@@ -489,14 +500,18 @@ const SlideDeck = () => {
                 <p className="text-slate-400 text-sm">点击投喂：书本、图片、视频...</p>
               </div>
             </div>
+            </div>
           </div>
         );
 
       case "chat_principle":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-5xl font-bold text-slate-800 mb-2">原理揭秘1：AI 怎么说话？</h2>
-            <p className="text-2xl text-slate-500 mb-8">其实它是一个超级厉害的"猜词高手"！</p>
+          <div className="flex flex-col h-full text-center">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">原理揭秘1：AI 怎么说话？</h2>
+              <p className="text-2xl text-slate-500">其实它是一个超级厉害的"猜词高手"！</p>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
 
             <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-4xl border-4 border-teal-100">
               <div className="flex items-center justify-center space-x-4 mb-8">
@@ -539,13 +554,17 @@ const SlideDeck = () => {
               <p className="text-xl text-teal-800 font-bold">AI 不是在"思考"，它是在"猜"下一个字！</p>
             </div>
             <p className="mt-4 text-slate-400 text-base">那 AI 怎么用"眼睛"看东西呢？下一页揭秘 👉</p>
+            </div>
           </div>
         );
 
       case "pattern":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-5xl font-bold text-slate-800 mb-8">原理揭秘2：AI 怎么认出猫？</h2>
+          <div className="flex flex-col h-full text-center">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">原理揭秘2：AI 怎么认出猫？</h2>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
             
             <div className="flex space-x-8 mb-8">
               <div className="bg-white p-6 rounded-2xl shadow-lg border-4 border-orange-200">
@@ -582,14 +601,18 @@ const SlideDeck = () => {
               <button onClick={() => setTigerTestResult('cat')} className="px-6 py-3 bg-red-100 text-red-600 rounded-xl font-bold hover:bg-red-200">是猫</button>
               <button onClick={() => setTigerTestResult('tiger')} className="px-6 py-3 bg-green-100 text-green-600 rounded-xl font-bold hover:bg-green-200">不是猫</button>
             </div>
+            </div>
           </div>
         );
 
       case "neural":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-4xl font-bold text-slate-800 mb-2">神经网络：谁大声听谁的！</h2>
-            <p className="text-xl text-slate-500 mb-4">游戏：全班大声喊，用声音给 AI 投票！🎤</p>
+          <div className="flex flex-col h-full text-center">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">神经网络：谁大声听谁的！</h2>
+              <p className="text-xl text-slate-500">游戏：全班大声喊，用声音给 AI 投票！🎤</p>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
 
             {/* 声波分贝仪 */}
             <div className="mb-4 w-full max-w-2xl">
@@ -697,13 +720,17 @@ const SlideDeck = () => {
             <div className="bg-blue-600 text-white px-8 py-4 rounded-full text-2xl font-bold shadow-lg transition-all duration-500">
               AI 最终决定：吃 {pizzaVotes > burgerVotes ? "🍕 披萨" : (pizzaVotes < burgerVotes ? "🍔 汉堡" : "🤔 声音一样大")}！
             </div>
+            </div>
           </div>
         );
 
       case "unplugged":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-4xl font-bold text-slate-800 mb-4">小小训练师</h2>
+          <div className="flex flex-col h-full text-center">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">小小训练师</h2>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
 
             <div className="flex items-center justify-center space-x-8 mb-4">
               {/* Card to Classify */}
@@ -772,13 +799,17 @@ const SlideDeck = () => {
             </div>
 
             <p className="text-slate-500 text-base">这就是"监督学习"：AI 犯错 {'->'} 人类纠正 {'->'} AI 变聪明</p>
+            </div>
           </div>
         );
 
       case "summary_process":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-5xl font-bold text-slate-800 mb-12">总结：AI 变聪明的"三步走"</h2>
+          <div className="flex flex-col h-full text-center">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">总结：AI 变聪明的"三步走"</h2>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
             
             <div className="flex items-center justify-center w-full max-w-6xl space-x-4">
               
@@ -786,7 +817,7 @@ const SlideDeck = () => {
               <div className={`flex flex-col items-center transition-all duration-700 ${processStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                 <div className="w-48 h-48 bg-green-100 rounded-full flex flex-col items-center justify-center border-4 border-green-300 shadow-lg relative">
                   <span className="text-6xl">🍔</span>
-                  <span className="text-sm font-bold text-green-700 mt-2">数据 (Data)</span>
+                  <span className="text-base font-bold text-green-700 mt-2">数据 (Data)</span>
                   <div className="absolute -top-4 -left-4 bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">1</div>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-700 mt-6">模型训练</h3>
@@ -805,7 +836,7 @@ const SlideDeck = () => {
                      <Search size={40} className="text-blue-600" />
                      <Volume2 size={40} className="text-blue-600" />
                   </div>
-                  <span className="text-sm font-bold text-blue-700 mt-2">找规律+投票</span>
+                  <span className="text-base font-bold text-blue-700 mt-2">找规律+投票</span>
                   <div className="absolute -top-4 -left-4 bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">2</div>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-700 mt-6">模型推理</h3>
@@ -821,7 +852,7 @@ const SlideDeck = () => {
               <div className={`flex flex-col items-center transition-all duration-700 delay-1000 ${processStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                 <div className="w-48 h-48 bg-purple-100 rounded-full flex flex-col items-center justify-center border-4 border-purple-300 shadow-lg relative">
                   <Settings size={60} className="text-purple-600 animate-spin-slow" />
-                  <span className="text-sm font-bold text-purple-700 mt-2">纠错 (Correction)</span>
+                  <span className="text-base font-bold text-purple-700 mt-2">纠错 (Correction)</span>
                   <div className="absolute -top-4 -left-4 bg-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">3</div>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-700 mt-6">模型调优</h3>
@@ -829,14 +860,18 @@ const SlideDeck = () => {
               </div>
 
             </div>
+            </div>
           </div>
         );
 
       case "drawing":
         return (
-          <div className="flex flex-col items-center justify-center h-full">
-             <div className="flex justify-between items-center w-full max-w-3xl mb-2">
-               <h2 className="text-3xl font-bold text-slate-800">魔法时刻：你画我猜</h2>
+          <div className="flex flex-col h-full">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">魔法时刻：你画我猜</h2>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
+             <div className="flex justify-end items-center w-full max-w-3xl mb-2">
                <div className="flex space-x-2">
                   <button onClick={clearCanvas} className="flex items-center space-x-1 px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm">
                     <Eraser size={16} /> <span>清除</span>
@@ -883,50 +918,51 @@ const SlideDeck = () => {
                  <ArrowRight size={18} />
                </a>
              </div>
+            </div>
           </div>
         );
 
       case "train_ai":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center px-12">
-            <div className="mb-4 animate-bounce">
-              <Sparkles size={50} className="text-purple-500" />
+          <div className="flex flex-col h-full text-center px-12">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">魔法时刻：训练自己的 AI</h2>
+              <p className="text-xl text-slate-600">你可以像训练小宠物一样，训练一个专属的 AI 模型！</p>
             </div>
-            <h2 className="text-4xl font-black text-slate-800 mb-2">魔法时刻：训练自己的 AI</h2>
-            <p className="text-xl text-slate-600 mb-6">你可以像训练小宠物一样，训练一个专属的 AI 模型！</p>
+            <div className="flex-1 flex flex-col items-center justify-center">
 
-            <div className="bg-white p-6 rounded-2xl shadow-lg max-w-3xl mb-5 border-3 border-purple-100">
+            <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-5xl mb-5 border-3 border-purple-100">
               <div className="grid grid-cols-3 gap-6 mb-5">
                 <div className="flex flex-col items-center">
                   <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-2">
                     <span className="text-2xl">📸</span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-800">收集数据</h3>
-                  <p className="text-xs text-slate-500 mt-1">拍摄多种角度的照片</p>
+                  <h3 className="text-lg font-bold text-slate-800">收集数据</h3>
+                  <p className="text-sm text-slate-500 mt-1">拍摄多种角度的照片</p>
                 </div>
                 <div className="flex flex-col items-center">
                   <div className="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center mb-2">
                     <span className="text-2xl">🎯</span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-800">训练模型</h3>
-                  <p className="text-xs text-slate-500 mt-1">AI 学习识别特征</p>
+                  <h3 className="text-lg font-bold text-slate-800">训练模型</h3>
+                  <p className="text-sm text-slate-500 mt-1">AI 学习识别特征</p>
                 </div>
                 <div className="flex flex-col items-center">
                   <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-2">
                     <span className="text-2xl">🚀</span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-800">测试使用</h3>
-                  <p className="text-xs text-slate-500 mt-1">看看 AI 学得怎么样</p>
+                  <h3 className="text-lg font-bold text-slate-800">测试使用</h3>
+                  <p className="text-sm text-slate-500 mt-1">看看 AI 学得怎么样</p>
                 </div>
               </div>
 
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl">
-                <p className="text-sm text-slate-700 mb-2">💡 <span className="font-bold">你可以训练：</span></p>
+                <p className="text-base text-slate-700 mb-2">💡 <span className="font-bold">你可以训练：</span></p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  <span className="bg-white px-3 py-1 rounded-full text-xs text-slate-600 shadow-sm">😊 表情识别</span>
-                  <span className="bg-white px-3 py-1 rounded-full text-xs text-slate-600 shadow-sm">👋 姿势识别</span>
-                  <span className="bg-white px-3 py-1 rounded-full text-xs text-slate-600 shadow-sm">🎵 声音分类</span>
-                  <span className="bg-white px-3 py-1 rounded-full text-xs text-slate-600 shadow-sm">🖼️ 图像分类</span>
+                  <span className="bg-white px-3 py-1 rounded-full text-sm text-slate-600 shadow-sm">😊 表情识别</span>
+                  <span className="bg-white px-3 py-1 rounded-full text-sm text-slate-600 shadow-sm">👋 姿势识别</span>
+                  <span className="bg-white px-3 py-1 rounded-full text-sm text-slate-600 shadow-sm">🎵 声音分类</span>
+                  <span className="bg-white px-3 py-1 rounded-full text-sm text-slate-600 shadow-sm">🖼️ 图像分类</span>
                 </div>
               </div>
             </div>
@@ -942,7 +978,8 @@ const SlideDeck = () => {
               <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
             </a>
 
-            <p className="mt-3 text-slate-400 text-xs">类似于 Teachable Machine，但更适合中国小朋友使用</p>
+            <p className="mt-3 text-slate-400 text-sm">类似于 Teachable Machine，但更适合中国小朋友使用</p>
+            </div>
           </div>
         );
 
@@ -956,9 +993,12 @@ const SlideDeck = () => {
           "听懂一种语言 → AI 转换 → 用另一种语言说出来",
         ];
         return (
-          <div className="flex flex-col items-center justify-center h-full">
-            <h2 className="text-4xl font-bold text-slate-800 mb-6">校园里的 AI 特工</h2>
-            <p className="text-slate-500 mb-4">点击卡片看看它是怎么工作的 👆</p>
+          <div className="flex flex-col h-full">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">校园里的 AI 特工</h2>
+              <p className="text-lg text-slate-500">点击卡片看看它是怎么工作的 👆</p>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
             <div className="grid grid-cols-3 gap-4 w-full max-w-5xl">
               {[
                 { title: "刷脸进门", icon: <Camera size={40} />, desc: "人脸识别", color: "text-blue-500 bg-blue-50" },
@@ -977,9 +1017,9 @@ const SlideDeck = () => {
                     {app.isTextIcon ? <span className="text-4xl">{app.icon}</span> : app.icon}
                   </div>
                   <h3 className="text-lg font-bold text-slate-800">{app.title}</h3>
-                  <p className="text-sm text-slate-500">{app.desc}</p>
+                  <p className="text-base text-slate-500">{app.desc}</p>
                   {expandedAgent === idx && (
-                    <div className="mt-3 px-3 py-2 bg-slate-50 rounded-lg text-sm text-slate-600 text-center animate-in zoom-in duration-200">
+                    <div className="mt-3 px-3 py-2 bg-slate-50 rounded-lg text-base text-slate-600 text-center animate-in zoom-in duration-200">
                       {agentDetails[idx]}
                     </div>
                   )}
@@ -987,18 +1027,21 @@ const SlideDeck = () => {
               ))}
             </div>
             <p className="mt-4 text-slate-400 text-base">AI 这么厉害，它会犯错吗？下一页告诉你真相 😱</p>
+            </div>
           </div>
         );
 
       case "hallucination":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center px-12">
-            <div className="flex items-center space-x-4 mb-6">
-              <AlertTriangle size={48} className="text-yellow-500" />
-              <h2 className="text-5xl font-bold text-slate-800">AI 也会"胡说八道"</h2>
+          <div className="flex flex-col h-full text-center px-12">
+            <div className="text-center pt-2">
+              <div className="flex items-center justify-center space-x-4">
+                <AlertTriangle size={48} className="text-yellow-500" />
+                <h2 className="text-5xl font-bold text-slate-800">AI 也会"胡说八道"</h2>
+              </div>
+              <p className="text-lg text-slate-500">让我们来考考 AI，看看它会不会犯错 👇</p>
             </div>
-
-            <p className="text-lg text-slate-500 mb-6">让我们来考考 AI，看看它会不会犯错 👇</p>
+            <div className="flex-1 flex flex-col items-center justify-center">
 
             {/* Interactive quiz - single card */}
             <div className="bg-white p-6 rounded-3xl shadow-xl border-4 border-purple-100 max-w-2xl w-full mb-6">
@@ -1021,7 +1064,7 @@ const SlideDeck = () => {
                   </div>
                   <div className="flex items-center justify-center space-x-2">
                     <span className="text-4xl">🤣</span>
-                    <p className="text-sm text-slate-400">（正确答案：蓝鲸 🐳 —— AI 把"鼠"字搞混了！）</p>
+                    <p className="text-base text-slate-400">（正确答案：蓝鲸 🐳 —— AI 把"鼠"字搞混了！）</p>
                   </div>
                 </div>
               )}
@@ -1033,13 +1076,17 @@ const SlideDeck = () => {
             </div>
 
             <p className="text-slate-400 text-base">那我们该怎样正确使用 AI 呢？看看这些小建议 👇</p>
+            </div>
           </div>
         );
 
       case "suggestions":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-5xl font-bold text-red-600 mb-8">💌 给小朋友的建议</h2>
+          <div className="flex flex-col h-full text-center">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-red-600">💌 给小朋友的建议</h2>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
             
             <div className="bg-white p-10 rounded-3xl shadow-xl max-w-4xl mb-8 text-left space-y-8 border-4 border-red-100">
               <div className="flex items-center space-x-6">
@@ -1064,16 +1111,19 @@ const SlideDeck = () => {
                 </div>
               </div>
             </div>
+            </div>
           </div>
         );
 
       case "hierarchy":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-3xl font-bold text-slate-800 mb-1">拓展：AI 的参天大树</h2>
-            <p className="text-base text-amber-600 mb-4">🌳 给学有余力的&ldquo;小科学家&rdquo;们 —— 一棵树，看懂 AI 的全貌</p>
-
-            <div className="flex-1 flex items-center justify-center w-full max-w-3xl">
+          <div className="flex flex-col h-full text-center">
+            <div className="text-center pt-2">
+              <h2 className="text-5xl font-bold text-slate-800">拓展：AI 的参天大树</h2>
+              <p className="text-lg text-amber-600">🌳 给学有余力的&ldquo;小科学家&rdquo;们 —— 一棵树，看懂 AI 的全貌</p>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="flex items-center justify-center w-full max-w-3xl">
               <img
                 src="https://pub-ae23ea8734be481ea425b35e20c16b40.r2.dev/pics/AI%E7%9A%84%E5%8F%82%E5%A4%A9%E5%A4%A7%E6%A0%91.png"
                 alt="AI的参天大树"
@@ -1081,11 +1131,12 @@ const SlideDeck = () => {
               />
             </div>
 
-            <p className="text-slate-500 text-sm mt-4 max-w-2xl">
+            <p className="text-base text-slate-400 mt-4 max-w-2xl">
               树根是 AI 的&ldquo;大脑&rdquo;（各种大模型），树干是&ldquo;工具&rdquo;（帮 AI 连接世界），枝叶就是我们能用的各种应用。
               <br />
               <span className="text-blue-500">那么在咱们的校园里，AI 都藏在哪些地方呢？翻到下一页，一起去发现吧！👉</span>
             </p>
+            </div>
           </div>
         );
 
@@ -1109,8 +1160,8 @@ const SlideDeck = () => {
   };
 
   return (
-    <div className={`w-full h-[680px] ${slides[currentSlide].bgColor} transition-colors duration-700 relative overflow-hidden font-sans select-none rounded-xl border border-slate-200 shadow-2xl`}>
-      <div className="w-full h-full p-8">
+    <div className={`w-full max-w-[1280px] aspect-video ${slides[currentSlide].bgColor} transition-colors duration-700 relative overflow-hidden font-sans select-none rounded-xl border border-slate-200 shadow-2xl`}>
+      <div className="w-full h-full p-10">
         {renderContent(slides[currentSlide])}
       </div>
 
