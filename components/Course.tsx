@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, Brain, Bot, Camera, Mic, Sparkles, AlertTriangle, ShieldCheck, Activity, Pencil, Eraser, Volume2, Search, Eye, Fingerprint, MessageSquare, BookOpen, ArrowRight, Settings, Wrench, Smartphone, Cpu, FileImage, Film, FileText, Play, Square } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Brain, Bot, Camera, Mic, Sparkles, AlertTriangle, ShieldCheck, Activity, Pencil, Eraser, Volume2, Search, Eye, Fingerprint, MessageSquare, BookOpen, ArrowRight, Settings, FileImage, Film, FileText, Play, Square } from 'lucide-react';
 
 type ChatGuess = 'correct' | 'wrong' | null;
 type TigerResult = 'cat' | 'tiger' | null;
@@ -47,19 +47,36 @@ const SlideDeck = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   
   // P14: Hierarchy
-  const [hierarchyStep, setHierarchyStep] = useState(0);
 
   // P2: Video Player
   const [videoEnded, setVideoEnded] = useState(false);
 
+  // P4: Sensor interaction
+  const [activeSensor, setActiveSensor] = useState<'camera' | 'mic' | null>(null);
+
+  // P14: Agent detail
+  const [expandedAgent, setExpandedAgent] = useState<number | null>(null);
+
+  // P15: Hallucination reveal
+  const [hallucinationRevealed, setHallucinationRevealed] = useState(false);
+
+  const prevSlideRef = useRef(currentSlide);
+
   // --- Effects & Helpers ---
 
   useEffect(() => {
-    // Reset slide-specific states
+    // Reset slide-specific states when LEAVING a slide
+    const prev = prevSlideRef.current;
+    if (prev === 8) setTrainingStep(0);
+    if (prev === 13) setExpandedAgent(null);
+    if (prev === 14) setHallucinationRevealed(false);
+    prevSlideRef.current = currentSlide;
+
+    // Reset states when ENTERING a slide
     if (currentSlide === 4) setFeedCount(0);
     if (currentSlide === 5) setChatGuess(null);
     if (currentSlide === 6) setTigerTestResult(null);
-    if (currentSlide === 8) setTrainingStep(0);
+    if (currentSlide === 3) setActiveSensor(null);
 
     // Cleanup Audio on slide change
     if (currentSlide !== 7) {
@@ -72,15 +89,6 @@ const SlideDeck = () => {
       const timer1 = setTimeout(() => setProcessStep(1), 500);
       const timer2 = setTimeout(() => setProcessStep(2), 2000);
       const timer3 = setTimeout(() => setProcessStep(3), 3500);
-      return () => { clearTimeout(timer1); clearTimeout(timer2); clearTimeout(timer3); };
-    }
-
-    // Auto-play animation for Hierarchy Slide (P13)
-    if (currentSlide === 12) {
-      setHierarchyStep(0);
-      const timer1 = setTimeout(() => setHierarchyStep(1), 500);
-      const timer2 = setTimeout(() => setHierarchyStep(2), 1500);
-      const timer3 = setTimeout(() => setHierarchyStep(3), 2500);
       return () => { clearTimeout(timer1); clearTimeout(timer2); clearTimeout(timer3); };
     }
   }, [currentSlide]);
@@ -183,11 +191,16 @@ const SlideDeck = () => {
     setRevealedCards(newRevealed);
   };
 
+  const handleSensorClick = (sensor: 'camera' | 'mic') => {
+    setActiveSensor(sensor);
+    setTimeout(() => setActiveSensor(null), 2000);
+  };
+
   const handleFeed = () => {
     if (feedCount >= 5) return;
     setFeedCount(c => c + 1);
-    const foods = ["🍔 美食", "📚 书本", "🖼️ 图片", "🎬 视频"];
-    setFeedEffect(`😋 吃了 ${foods[feedCount % 4]}!`);
+    const feedbacks = ["AI 吃了一堆文字数据！", "AI 看了好多图片！", "AI 听了各种声音！", "AI 看了无数视频！"];
+    setFeedEffect(feedbacks[feedCount % 4]);
     setCurrentFoodIcon((prev) => (prev + 1) % 4);
     setTimeout(() => setFeedEffect(null), 800);
   };
@@ -296,7 +309,9 @@ const SlideDeck = () => {
             <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mt-8">
               <div className="h-full bg-blue-500 animate-[width_2s_ease-in-out_infinite]" style={{width: '60%'}}></div>
             </div>
-            <p className="text-slate-400 text-sm">正在加载超级大脑...</p>
+            <button onClick={nextSlide} className="mt-2 px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-lg font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 animate-pulse">
+              点击开始冒险 →
+            </button>
           </div>
         );
 
@@ -364,6 +379,9 @@ const SlideDeck = () => {
             <p className="mt-12 text-2xl text-slate-600 font-bold bg-white px-6 py-3 rounded-full shadow-sm">
               共同点：他们都有"超级大脑"，能听懂人话！
             </p>
+            <div className="mt-4 bg-blue-100 px-6 py-3 rounded-2xl">
+              <p className="text-lg text-blue-800 font-bold">💡 人工智能（AI）= 让机器学会像人一样看、听、思考和做决定的技术</p>
+            </div>
           </div>
         );
 
@@ -381,20 +399,44 @@ const SlideDeck = () => {
                 </div>
                 <p className="text-slate-500">用五官感受</p>
               </div>
-              
+
               <div className="text-4xl font-bold text-slate-400">VS</div>
 
               {/* AI */}
               <div className="flex-1 bg-white p-8 rounded-3xl shadow-lg border-b-8 border-blue-200 text-center">
                 <h3 className="text-3xl font-bold text-blue-600 mb-6">AI 🤖</h3>
-                <div className="flex justify-center space-x-4 mb-4">
-                  <div className="flex flex-col items-center"><Camera size={48} className="text-slate-700"/><span className="mt-2">摄像头</span></div>
-                  <div className="flex flex-col items-center"><Mic size={48} className="text-slate-700"/><span className="mt-2">麦克风</span></div>
+                <div className="flex justify-center space-x-4 mb-4 relative">
+                  <div
+                    className="flex flex-col items-center cursor-pointer hover:scale-110 transition-transform"
+                    onClick={() => handleSensorClick('camera')}
+                  >
+                    <Camera size={48} className="text-slate-700"/>
+                    <span className="mt-2">摄像头</span>
+                    <span className="text-xs text-blue-400">点击试试</span>
+                  </div>
+                  <div
+                    className="flex flex-col items-center cursor-pointer hover:scale-110 transition-transform"
+                    onClick={() => handleSensorClick('mic')}
+                  >
+                    <Mic size={48} className="text-slate-700"/>
+                    <span className="mt-2">麦克风</span>
+                    <span className="text-xs text-blue-400">点击试试</span>
+                  </div>
                 </div>
                 <p className="text-slate-500">用传感器 (Sensors)</p>
               </div>
             </div>
-            <div className="mt-12 bg-pink-100 px-8 py-4 rounded-2xl flex items-center space-x-4">
+
+            {/* Sensor feedback bubble */}
+            {activeSensor && (
+              <div className="mt-4 bg-blue-100 px-6 py-3 rounded-2xl animate-in zoom-in duration-300">
+                <p className="text-lg text-blue-800 font-bold">
+                  {activeSensor === 'camera' ? '📸 咔嚓！AI 看到了一只猫！' : '🎤 AI 听到了你在说"你好"！'}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-4 bg-pink-100 px-8 py-4 rounded-2xl flex items-center space-x-4">
               <span className="text-4xl">👶</span>
               <p className="text-2xl text-pink-800 font-bold">AI 就像小宝宝，要吃"数据"才能长大！</p>
             </div>
@@ -496,6 +538,7 @@ const SlideDeck = () => {
               <MessageSquare className="text-teal-700" />
               <p className="text-xl text-teal-800 font-bold">AI 不是在"思考"，它是在"猜"下一个字！</p>
             </div>
+            <p className="mt-4 text-slate-400 text-base">那 AI 怎么用"眼睛"看东西呢？下一页揭秘 👉</p>
           </div>
         );
 
@@ -660,50 +703,75 @@ const SlideDeck = () => {
       case "unplugged":
         return (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-4xl font-bold text-slate-800 mb-6">小小训练师</h2>
-            
-            <div className="flex items-center justify-center space-x-8 mb-8">
+            <h2 className="text-4xl font-bold text-slate-800 mb-4">小小训练师</h2>
+
+            <div className="flex items-center justify-center space-x-8 mb-4">
               {/* Card to Classify */}
-              <div className="w-48 h-64 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center border-4 border-slate-200">
-                <span className="text-8xl">🐺</span>
-                <span className="text-xl font-bold mt-4 text-slate-500">这是什么？</span>
+              <div className="w-40 h-52 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center border-4 border-slate-200">
+                <span className="text-7xl">{trainingStep >= 3 ? '🐕' : '🐺'}</span>
+                <span className="text-lg font-bold mt-3 text-slate-500">{trainingStep >= 3 ? '这次呢？' : '这是什么？'}</span>
               </div>
 
               {/* Robot Action */}
-              <div className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-3 min-w-[280px]">
                 {trainingStep === 0 && (
-                  <button 
+                  <button
                     onClick={() => setTrainingStep(1)}
-                    className="px-8 py-4 bg-blue-100 text-blue-700 rounded-xl text-xl font-bold hover:bg-blue-200"
+                    className="px-6 py-3 bg-blue-100 text-blue-700 rounded-xl text-lg font-bold hover:bg-blue-200"
                   >
                     机器人：我觉得是 🐶 狗！
                   </button>
                 )}
-                
+
                 {trainingStep === 1 && (
                   <div className="animate-in zoom-in duration-300">
-                    <div className="flex items-center space-x-4 mb-4">
-                      <AlertTriangle className="text-red-500" size={40} />
-                      <span className="text-2xl font-bold text-red-500">裁判：错啦！(NO)</span>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <AlertTriangle className="text-red-500" size={32} />
+                      <span className="text-xl font-bold text-red-500">裁判：错啦！</span>
                     </div>
-                    <button 
+                    <button
                       onClick={() => setTrainingStep(2)}
-                      className="px-8 py-4 bg-green-500 text-white rounded-xl text-xl font-bold hover:bg-green-600 shadow-lg"
+                      className="px-6 py-3 bg-green-500 text-white rounded-xl text-lg font-bold hover:bg-green-600 shadow-lg"
                     >
-                      训练员：纠正它！这是狼！
+                      训练员：纠正它！这是狼！🐺
                     </button>
                   </div>
                 )}
 
                 {trainingStep === 2 && (
-                  <div className="bg-green-100 p-6 rounded-xl text-green-800 font-bold text-xl animate-bounce">
-                    机器人：收到！我记住了，尖耳朵+凶狠眼神=狼！✅
+                  <div className="animate-in zoom-in duration-300">
+                    <div className="bg-green-100 p-4 rounded-xl text-green-800 font-bold text-lg mb-3">
+                      机器人：收到！尖耳朵+凶狠眼神=狼！✅
+                    </div>
+                    <button
+                      onClick={() => setTrainingStep(3)}
+                      className="px-6 py-3 bg-blue-100 text-blue-700 rounded-xl text-lg font-bold hover:bg-blue-200"
+                    >
+                      再来一张图片试试？👉
+                    </button>
+                  </div>
+                )}
+
+                {trainingStep === 3 && (
+                  <div className="animate-in zoom-in duration-300">
+                    <button
+                      onClick={() => setTrainingStep(4)}
+                      className="px-6 py-3 bg-green-100 text-green-700 rounded-xl text-lg font-bold hover:bg-green-200"
+                    >
+                      机器人：这次我认出来了，是 🐕 柴犬！
+                    </button>
+                  </div>
+                )}
+
+                {trainingStep === 4 && (
+                  <div className="bg-green-100 p-4 rounded-xl text-green-800 font-bold text-lg animate-bounce">
+                    🎉 训练越多，AI 越聪明！
                   </div>
                 )}
               </div>
             </div>
-            
-            <p className="text-slate-500 text-lg">这就是"监督学习"：AI 犯错 {'->'} 人类纠正 {'->'} AI 变聪明</p>
+
+            <p className="text-slate-500 text-base">这就是"监督学习"：AI 犯错 {'->'} 人类纠正 {'->'} AI 变聪明</p>
           </div>
         );
 
@@ -879,10 +947,19 @@ const SlideDeck = () => {
         );
 
       case "agents":
+        const agentDetails = [
+          "用摄像头拍下你的脸 → AI 比对数据库 → 确认身份开门",
+          "听到你说的话 → 转成文字 → 理解意思 → 回答你",
+          "记住你看过什么 → 找出相似内容 → 推荐给你",
+          "摄像头拍下你运动 → AI 分析动作姿势 → 给出改进建议",
+          "传感器监测温度湿度 → AI 判断是否需要浇水 → 自动灌溉",
+          "听懂一种语言 → AI 转换 → 用另一种语言说出来",
+        ];
         return (
           <div className="flex flex-col items-center justify-center h-full">
-            <h2 className="text-4xl font-bold text-slate-800 mb-10">校园里的 AI 特工</h2>
-            <div className="grid grid-cols-3 gap-6 w-full max-w-5xl">
+            <h2 className="text-4xl font-bold text-slate-800 mb-6">校园里的 AI 特工</h2>
+            <p className="text-slate-500 mb-4">点击卡片看看它是怎么工作的 👆</p>
+            <div className="grid grid-cols-3 gap-4 w-full max-w-5xl">
               {[
                 { title: "刷脸进门", icon: <Camera size={40} />, desc: "人脸识别", color: "text-blue-500 bg-blue-50" },
                 { title: "小爱/Siri", icon: <Mic size={40} />, desc: "语音识别", color: "text-green-500 bg-green-50" },
@@ -891,15 +968,25 @@ const SlideDeck = () => {
                 { title: "AI 种菜", icon: "🌱", desc: "环境监测", color: "text-emerald-500 bg-emerald-50", isTextIcon: true },
                 { title: "AI 翻译", icon: "🗣️", desc: "语言转换", color: "text-purple-500 bg-purple-50", isTextIcon: true },
               ].map((app, idx) => (
-                <div key={idx} className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-md hover:-translate-y-1 transition-transform">
-                  <div className={`p-4 rounded-full mb-4 ${app.color}`}>
+                <div
+                  key={idx}
+                  onClick={() => setExpandedAgent(expandedAgent === idx ? null : idx)}
+                  className="flex flex-col items-center p-4 bg-white rounded-2xl shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+                >
+                  <div className={`p-3 rounded-full mb-2 ${app.color}`}>
                     {app.isTextIcon ? <span className="text-4xl">{app.icon}</span> : app.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-slate-800">{app.title}</h3>
+                  <h3 className="text-lg font-bold text-slate-800">{app.title}</h3>
                   <p className="text-sm text-slate-500">{app.desc}</p>
+                  {expandedAgent === idx && (
+                    <div className="mt-3 px-3 py-2 bg-slate-50 rounded-lg text-sm text-slate-600 text-center animate-in zoom-in duration-200">
+                      {agentDetails[idx]}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
+            <p className="mt-4 text-slate-400 text-base">AI 这么厉害，它会犯错吗？下一页告诉你真相 😱</p>
           </div>
         );
 
@@ -910,22 +997,42 @@ const SlideDeck = () => {
               <AlertTriangle size={48} className="text-yellow-500" />
               <h2 className="text-5xl font-bold text-slate-800">AI 也会"胡说八道"</h2>
             </div>
-            
-            <div className="flex items-center justify-center space-x-12 mb-8 w-full">
-              <div className="bg-white p-6 rounded-3xl shadow-xl border-4 border-gray-200 max-w-sm">
-                <p className="text-slate-500 mb-2 text-left">问：世界上最大的动物是什么？</p>
-                <div className="flex items-start space-x-3">
-                  <Bot className="text-blue-500 mt-1" />
-                  <p className="text-xl font-bold text-left">AI：是鼠标！因为鼠标也有"鼠"字，而且它能控制电脑这个庞然大物！🐭</p>
-                </div>
+
+            <p className="text-lg text-slate-500 mb-6">让我们来考考 AI，看看它会不会犯错 👇</p>
+
+            {/* Interactive quiz - single card */}
+            <div className="bg-white p-6 rounded-3xl shadow-xl border-4 border-purple-100 max-w-2xl w-full mb-6">
+              <div className="flex items-center space-x-2 mb-3">
+                <MessageSquare size={24} className="text-purple-500" />
+                <p className="text-slate-600 font-bold text-lg">问：世界上最大的动物是什么？</p>
               </div>
-              <div className="text-6xl animate-pulse">🤣</div>
+              {!hallucinationRevealed ? (
+                <button
+                  onClick={() => setHallucinationRevealed(true)}
+                  className="w-full py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-2xl font-bold text-lg transition-all hover:scale-105 active:scale-95"
+                >
+                  🤖 看看 AI 怎么回答
+                </button>
+              ) : (
+                <div className="space-y-3 animate-in fade-in duration-500">
+                  <div className="flex items-start space-x-3 bg-red-50 p-4 rounded-2xl">
+                    <Bot className="text-blue-500 mt-1 flex-shrink-0" />
+                    <p className="text-lg font-bold text-red-500 text-left">AI：是鼠标！因为鼠标也有"鼠"字，而且它能控制电脑这个庞然大物！🐭</p>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="text-4xl">🤣</span>
+                    <p className="text-sm text-slate-400">（正确答案：蓝鲸 🐳 —— AI 把"鼠"字搞混了！）</p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="bg-yellow-100 border-l-8 border-yellow-500 p-6 rounded-r-xl text-left max-w-3xl">
-              <h3 className="text-2xl font-bold text-yellow-800 mb-2">为什么？</h3>
-              <p className="text-lg text-yellow-700">AI 没有真正的"常识"，它只是在猜下一个字。所以写作业时，<span className="font-black underline">绝对不能全抄 AI！</span></p>
+            <div className="bg-yellow-100 border-l-8 border-yellow-500 p-4 rounded-r-xl text-left max-w-2xl w-full mb-4">
+              <h3 className="text-xl font-bold text-yellow-800 mb-1">为什么 AI 会胡说？</h3>
+              <p className="text-base text-yellow-700">AI 没有真正的"常识"，它只是在<span className="font-bold">猜下一个字</span>。有时候猜得像模像样，但完全不对！所以写作业时，<span className="font-black underline">绝对不能全抄 AI！</span></p>
             </div>
+
+            <p className="text-slate-400 text-base">那我们该怎样正确使用 AI 呢？看看这些小建议 👇</p>
           </div>
         );
 
@@ -963,62 +1070,22 @@ const SlideDeck = () => {
       case "hierarchy":
         return (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-4xl font-bold text-slate-800 mb-2">拓展：AI 的未来大厦</h2>
-            <p className="text-xl text-slate-500 mb-8">给学有余力的"小科学家"们 🏗️</p>
-            
-            <div className="flex flex-col-reverse w-full max-w-4xl space-y-4 space-y-reverse">
-              
-              {/* Layer 1: Foundation (Bottom) */}
-              <div className={`transition-all duration-700 ${hierarchyStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
-                <div className="bg-blue-600 text-white p-6 rounded-b-3xl rounded-t-lg shadow-xl mx-auto w-full border-b-8 border-blue-800">
-                  <div className="flex items-center justify-center space-x-3 mb-2">
-                     <Cpu size={32} />
-                     <h3 className="text-2xl font-bold">底层：核心地基（大脑）</h3>
-                  </div>
-                  <div className="flex justify-center space-x-4 text-blue-100 font-mono text-sm md:text-base">
-                    <span className="bg-blue-700 px-3 py-1 rounded">机器学习</span>
-                    <span>{'->'}</span>
-                    <span className="bg-blue-700 px-3 py-1 rounded">深度学习</span>
-                    <span>{'->'}</span>
-                    <span className="bg-blue-700 px-3 py-1 rounded font-bold text-white">大语言模型 (LLM)</span>
-                  </div>
-                </div>
-              </div>
+            <h2 className="text-3xl font-bold text-slate-800 mb-1">拓展：AI 的参天大树</h2>
+            <p className="text-base text-amber-600 mb-4">🌳 给学有余力的&ldquo;小科学家&rdquo;们 —— 一棵树，看懂 AI 的全貌</p>
 
-              {/* Layer 2: Middle */}
-              <div className={`transition-all duration-700 delay-200 ${hierarchyStep >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
-                <div className="bg-purple-500 text-white p-5 rounded-lg shadow-lg mx-auto w-[90%] border-b-8 border-purple-700">
-                  <div className="flex items-center justify-center space-x-3 mb-2">
-                     <Wrench size={28} />
-                     <h3 className="text-2xl font-bold">中层：智能工具（连接世界）</h3>
-                  </div>
-                  <p className="text-purple-100">智能体 (Agents) · 插件 · 工具</p>
-                </div>
-              </div>
-
-              {/* Layer 3: Top */}
-              <div className={`transition-all duration-700 delay-500 ${hierarchyStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
-                <div className="bg-orange-400 text-white p-5 rounded-t-3xl rounded-b-lg shadow-lg mx-auto w-[80%] border-b-8 border-orange-600 relative">
-                  {/* Flag */}
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce">
-                     <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">我们在这！</div>
-                     <div className="h-4 w-1 bg-gray-400"></div>
-                  </div>
-                  
-                  <div className="flex items-center justify-center space-x-3 mb-2">
-                     <Smartphone size={28} />
-                     <h3 className="text-2xl font-bold">上层：精彩应用（生活学习）</h3>
-                  </div>
-                  <div className="flex justify-center space-x-4">
-                     <span className="bg-white/20 px-3 py-1 rounded-full">豆包</span>
-                     <span className="bg-white/20 px-3 py-1 rounded-full">即梦AI</span>
-                     <span className="bg-white/20 px-3 py-1 rounded-full">ChatGPT</span>
-                     <span className="bg-white/20 px-3 py-1 rounded-full">Sora</span>
-                  </div>
-                </div>
-              </div>
-
+            <div className="flex-1 flex items-center justify-center w-full max-w-3xl">
+              <img
+                src="https://pub-ae23ea8734be481ea425b35e20c16b40.r2.dev/pics/AI%E7%9A%84%E5%8F%82%E5%A4%A9%E5%A4%A7%E6%A0%91.png"
+                alt="AI的参天大树"
+                className="max-h-[65vh] w-auto object-contain rounded-2xl shadow-lg"
+              />
             </div>
+
+            <p className="text-slate-500 text-sm mt-4 max-w-2xl">
+              树根是 AI 的&ldquo;大脑&rdquo;（各种大模型），树干是&ldquo;工具&rdquo;（帮 AI 连接世界），枝叶就是我们能用的各种应用。
+              <br />
+              <span className="text-blue-500">那么在咱们的校园里，AI 都藏在哪些地方呢？翻到下一页，一起去发现吧！👉</span>
+            </p>
           </div>
         );
 
