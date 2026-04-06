@@ -123,29 +123,29 @@ const SlideDeck = () => {
         const volumePercent = Math.min(100, (average / 255) * 100);
         setCurrentVolume(volumePercent);
 
-        // 阶梯式敏感度：需要达到一定音量才能快速增长
-        // volume < 30: 无增长
+        // 安静时票数下降，声音大时票数增长
+        // volume < 30: 下降
         // volume 30-50: 缓慢增长
         // volume 50-70: 中速增长
         // volume 70-80: 快速增长
         // volume > 80: 最快增长
-        let sensitivity = 0;
-        if (volumePercent > 80) {
-          sensitivity = 1.0; // 最高敏感度
-        } else if (volumePercent > 70) {
-          sensitivity = 0.6;
-        } else if (volumePercent > 50) {
-          sensitivity = 0.3;
-        } else if (volumePercent > 30) {
-          sensitivity = 0.1;
+        let delta: number;
+        if (volumePercent > 70) {
+          delta = average * 0.15; // 最快增长
+        } else if (volumePercent > 60) {
+          delta = average * 0.09;
+        } else if (volumePercent > 40) {
+          delta = average * 0.045;
+        } else if (volumePercent > 20) {
+          delta = average * 0.015;
+        } else {
+          delta = -0.3; // 安静时缓慢下降
         }
 
-        const boost = average * 0.15 * sensitivity;
-
         if (team === 'burger') {
-          setBurgerVotes(prev => Math.min(300, prev + boost));
+          setBurgerVotes(prev => Math.max(0, Math.min(300, prev + delta)));
         } else {
-          setPizzaVotes(prev => Math.min(300, prev + boost));
+          setPizzaVotes(prev => Math.max(0, Math.min(300, prev + delta)));
         }
 
         animationFrameRef.current = requestAnimationFrame(updateVolume);
@@ -161,13 +161,17 @@ const SlideDeck = () => {
 
   const stopListening = () => {
     if (sourceRef.current) {
-      // Stop the stream tracks
       const stream = sourceRef.current.mediaStream;
       if (stream) stream.getTracks().forEach(track => track.stop());
       sourceRef.current.disconnect();
+      sourceRef.current = null;
+    }
+    if (analyserRef.current) {
+      analyserRef.current = null;
     }
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
     setIsListening(null);
     setCurrentVolume(0);
@@ -302,7 +306,7 @@ const SlideDeck = () => {
             <h2 className="text-4xl font-bold text-white mb-6">AI 导航视频 🎬</h2>
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-blue-400">
               <video
-                src="/videos/ai-intro.mp4"
+                src="https://pub-ae23ea8734be481ea425b35e20c16b40.r2.dev/videos/ai-intro.mp4"
                 className="w-full max-w-3xl"
                 controls
                 onEnded={() => setVideoEnded(true)}
@@ -320,19 +324,19 @@ const SlideDeck = () => {
               {[
                 { 
                   hint: "蓝色机器猫", 
-                  imgUrl: "https://d41chssnpqdne.cloudfront.net/user_upload_by_module/chat_bot/files/85019786/JkNrzHlrn9ZJc6wa?Expires=1768570415&Signature=eYJhDp9HuNtpNTbFyGGpHGmMYOHR90zAWiEdL-5jJyBNpIHjO6qw6dOfRKjSmNtmheN-NUCYjLSChR2FBItUHliOIbQcWk2DugMysJ2cFljRyisMQ70S3VrnnfzMIygavETQAVzCiD6bpdyy1txYN-luOkrwSiTmx5oYraHBz0xlie9Jzfe-E~TnjyLPnEJNTHvHppnFmIfHMmB0K6HGz7VdD2Yz57XXgzWUzChIZXcnpMW92wNkU4SPFFiHfA5xnfQZLjKfPh83DPBaSdXiNv-ZfZdD4avANLZ5gJ-hH-yzI5L9vGRIe6Zf-wVwdTMNkXf10wfuxn2qG4jUpl0XEQ__&Key-Pair-Id=K3USGZIKWMDCSX", 
+                  imgUrl: "https://pub-ae23ea8734be481ea425b35e20c16b40.r2.dev/pics/doraemon.png", 
                   name: "哆啦A梦", 
                   color: "bg-blue-100" 
                 },
                 { 
                   hint: "暖男医生", 
-                  imgUrl: "https://d41chssnpqdne.cloudfront.net/user_upload_by_module/chat_bot/files/85019786/shhx2Z1SFlK0IRaw?Expires=1768570458&Signature=kwER1Xm8K-LKJBfVLCyBi8EhW5BMV17rLEQWkl1UGDA4iS6FmoJzef97nMwkfQd3PBkFEDVpCR6ZSKTRGsFVsz~WIHc2aTpWkD0GHAksA~WJBwDA7fcVaswdhNUZIJ2xCo8xZ12cVoagpSAX4vFUeUiXIF2~SApcM-TPhXDQ~uwCp09wbncuyOVeuVsjwOn4r1Xog4szIkS4DKQbb7Ck4fSS4nTtt2xWM1htevgcWUezITGg6N95onk5yQ7q3EaAjkJ9I2pzlTs-fBz4FYZ38v8ANysh3bQVe54-JM4njYYrs-9gMaujquhTVW3RDL-m5ZzIaeSRz~5okEGGl~YPUQ__&Key-Pair-Id=K3USGZIKWMDCSX", 
+                  imgUrl: "https://pub-ae23ea8734be481ea425b35e20c16b40.r2.dev/pics/%E5%A4%A7%E7%99%BD.png", 
                   name: "大白", 
                   color: "bg-gray-100" 
                 },
                 { 
                   hint: "钢铁侠管家", 
-                  imgUrl: "https://d41chssnpqdne.cloudfront.net/user_upload_by_module/chat_bot/files/85019786/YWCHDUAGwcJh910O._____AI____-__?Expires=1768570502&Signature=KxG~6FUCo4wA8hivzy1F8azRNlU07TKlPRrbQ0pnQPAlYzEJhBjyROYaXBYq3CfmAtBA1zwo1Nhy6CGELgMjFa3HUqkVQ4ebQ8KqLmWT1YqBnBxJ8GL8LTAJuJJqm3mqimQPUcbrVoAVjzdXpktlzChlA3XifYbvj9JY4hplmwoz9u5lwkuCzTVAjDpIrYmp~XxgHUmOIuBRAhFFbMUA4ZW1s5y8EMjlSoXE7gWeT8ahpOweWupLjpsc2or378FYNhdeAoxsPpvHmE1oPd--urpWDtchkFCKKrUz9Ikvy8CHiQlCmK0Hp6dwEs3rmcCL6ZWP57vFz8u80~SMn0u4iA__&Key-Pair-Id=K3USGZIKWMDCSX", 
+                  imgUrl: "https://pub-ae23ea8734be481ea425b35e20c16b40.r2.dev/pics/jarvis_logo.png", 
                   name: "贾维斯", 
                   color: "bg-red-100" 
                 }
@@ -344,7 +348,7 @@ const SlideDeck = () => {
                 >
                   {revealedCards[idx] ? (
                     <>
-                      <img src={item.imgUrl} alt={item.name} className="w-48 h-48 mb-4 object-contain animate-in zoom-in" />
+                      <img src={item.imgUrl} alt={item.name} className="w-48 h-48 mb-4 object-contain animate-in zoom-in mix-blend-multiply" />
                       <h3 className="text-3xl font-bold text-slate-800">{item.name}</h3>
                     </>
                   ) : (
