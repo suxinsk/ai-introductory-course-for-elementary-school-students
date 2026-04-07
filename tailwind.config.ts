@@ -21,11 +21,16 @@ const config: Config = {
           "from": { transform: "rotate(0deg)" },
           "to": { transform: "rotate(360deg)" },
         },
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "width": "width 2s ease-in-out infinite",
         "fade-out-up": "fade-out-up 0.8s ease-out forwards",
         "spin-slow": "spin 3s linear infinite",
+        "fade-in-up": "fade-in-up 0.5s ease-out forwards",
       },
     },
   },

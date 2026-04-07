@@ -93,6 +93,16 @@ const SlideDeck = () => {
     }
   }, [currentSlide]);
 
+  // --- Keyboard Navigation ---
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') setCurrentSlide(c => c > 0 ? c - 1 : c);
+      if (e.key === 'ArrowRight') setCurrentSlide(c => c < slides.length - 1 ? c + 1 : c);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // --- Audio Logic for P7 ---
   const startListening = async (team: 'burger' | 'pizza') => {
     try {
@@ -277,14 +287,14 @@ const SlideDeck = () => {
     { id: 11, type: "drawing", bgColor: "bg-sky-50" },
     // P12: Train AI (魔法时刻：训练自己的AI)
     { id: 12, type: "train_ai", bgColor: "bg-gradient-to-br from-purple-50 to-pink-50" },
-    // P13: Hierarchy (AI 未来大厦)
-    { id: 13, type: "hierarchy", bgColor: "bg-gradient-to-b from-slate-50 to-slate-200" },
-    // P14: Agents (校园 AI 特工)
-    { id: 14, type: "agents", bgColor: "bg-indigo-50" },
-    // P15: Hallucination
-    { id: 15, type: "hallucination", bgColor: "bg-amber-50" },
-    // P16: Suggestions
-    { id: 16, type: "suggestions", bgColor: "bg-red-50" },
+    // P13: Agents (校园 AI 特工)
+    { id: 13, type: "agents", bgColor: "bg-indigo-50" },
+    // P14: Hallucination
+    { id: 14, type: "hallucination", bgColor: "bg-amber-50" },
+    // P15: Suggestions
+    { id: 15, type: "suggestions", bgColor: "bg-red-50" },
+    // P16: Hierarchy (AI 参天大树 - 总结升华)
+    { id: 16, type: "hierarchy", bgColor: "bg-gradient-to-b from-slate-50 to-slate-200" },
     // P17: End
     { id: 17, type: "end", bgColor: "bg-gradient-to-t from-blue-200 to-white" },
   ];
@@ -297,7 +307,7 @@ const SlideDeck = () => {
     switch (slide.type) {
       case "cover":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-in fade-in duration-700">
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-8 animate-in fade-in duration-700 relative">
             <div className="relative">
               <Bot size={160} className="text-blue-600 animate-bounce" />
               <div className="absolute top-10 right-10 w-4 h-4 bg-yellow-400 rounded-full animate-ping"></div>
@@ -312,6 +322,11 @@ const SlideDeck = () => {
             <button onClick={nextSlide} className="mt-2 px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-lg font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 animate-pulse">
               点击开始冒险 →
             </button>
+            <div className="absolute bottom-3 left-6 text-xs text-slate-400/80 flex items-center gap-1.5">
+              <span>Designed by 苏欣</span>
+              <span className="text-slate-300">·</span>
+              <a href="mailto:277285619@qq.com" className="hover:text-blue-400 transition-colors cursor-pointer" title="点击发送邮件">277285619@qq.com</a>
+            </div>
           </div>
         );
 
@@ -817,11 +832,11 @@ const SlideDeck = () => {
               <div className={`flex flex-col items-center transition-all duration-700 ${processStep >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                 <div className="w-48 h-48 bg-green-100 rounded-full flex flex-col items-center justify-center border-4 border-green-300 shadow-lg relative">
                   <span className="text-6xl">🍔</span>
-                  <span className="text-base font-bold text-green-700 mt-2">数据 (Data)</span>
+                  <span className="text-base font-bold text-green-700 mt-2">数据</span>
                   <div className="absolute -top-4 -left-4 bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">1</div>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-700 mt-6">模型训练</h3>
-                <p className="text-slate-500">喂数据 (Feeding)</p>
+                <p className="text-slate-500">喂数据</p>
               </div>
 
               {/* Arrow */}
@@ -852,7 +867,7 @@ const SlideDeck = () => {
               <div className={`flex flex-col items-center transition-all duration-700 delay-1000 ${processStep >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                 <div className="w-48 h-48 bg-purple-100 rounded-full flex flex-col items-center justify-center border-4 border-purple-300 shadow-lg relative">
                   <Settings size={60} className="text-purple-600 animate-spin-slow" />
-                  <span className="text-base font-bold text-purple-700 mt-2">纠错 (Correction)</span>
+                  <span className="text-base font-bold text-purple-700 mt-2">纠错</span>
                   <div className="absolute -top-4 -left-4 bg-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl">3</div>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-700 mt-6">模型调优</h3>
@@ -1047,7 +1062,7 @@ const SlideDeck = () => {
             <div className="bg-white p-6 rounded-3xl shadow-xl border-4 border-purple-100 max-w-2xl w-full mb-6">
               <div className="flex items-center space-x-2 mb-3">
                 <MessageSquare size={24} className="text-purple-500" />
-                <p className="text-slate-600 font-bold text-lg">问：世界上最大的动物是什么？</p>
+                <p className="text-slate-600 font-bold text-lg">问：请告诉我"红烧企鹅"这道菜怎么做？</p>
               </div>
               {!hallucinationRevealed ? (
                 <button
@@ -1057,23 +1072,25 @@ const SlideDeck = () => {
                   🤖 看看 AI 怎么回答
                 </button>
               ) : (
-                <div className="space-y-3 animate-in fade-in duration-500">
+                <div className="space-y-3" style={{ animation: 'fade-in-up 0.5s ease-out forwards' }}>
                   <div className="flex items-start space-x-3 bg-red-50 p-4 rounded-2xl">
                     <Bot className="text-blue-500 mt-1 flex-shrink-0" />
-                    <p className="text-lg font-bold text-red-500 text-left">AI：是鼠标！因为鼠标也有"鼠"字，而且它能控制电脑这个庞然大物！🐭</p>
+                    <p className="text-lg font-bold text-red-500 text-left">AI：红烧企鹅是一道传统名菜！首先准备一只新鲜的企鹅，切块后加入葱姜蒜爆炒，再加入酱油炖煮半小时即可出锅，味道鲜美…… 🐧🍲</p>
                   </div>
                   <div className="flex items-center justify-center space-x-2">
                     <span className="text-4xl">🤣</span>
-                    <p className="text-base text-slate-400">（正确答案：蓝鲸 🐳 —— AI 把"鼠"字搞混了！）</p>
+                    <p className="text-base text-slate-400">（企鹅是南极保护动物，根本没有这道菜！—— AI 被你骗了，还在不懂装懂！）</p>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="bg-yellow-100 border-l-8 border-yellow-500 p-4 rounded-r-xl text-left max-w-2xl w-full mb-4">
-              <h3 className="text-xl font-bold text-yellow-800 mb-1">为什么 AI 会胡说？</h3>
-              <p className="text-base text-yellow-700">AI 没有真正的"常识"，它只是在<span className="font-bold">猜下一个字</span>。有时候猜得像模像样，但完全不对！所以写作业时，<span className="font-black underline">绝对不能全抄 AI！</span></p>
-            </div>
+            {hallucinationRevealed && (
+              <div className="bg-yellow-100 border-l-8 border-yellow-500 p-4 rounded-r-xl text-left max-w-2xl w-full mb-4" style={{ animation: 'fade-in-up 0.6s ease-out forwards', animationDelay: '0.3s', opacity: 0 }}>
+                <h3 className="text-xl font-bold text-yellow-800 mb-1">为什么 AI 会胡说？</h3>
+                <p className="text-base text-yellow-700">AI 没有我们在生活中的"常识"，它只是超级聪明的<span className="font-bold">"文字接龙"游戏</span>。如果你问它不存在的东西，它为了让你开心，就会努力"编"一个听起来很真实的答案！所以写作业时，<span className="font-black underline">绝对不能全抄 AI！</span></p>
+              </div>
+            )}
 
             <p className="text-slate-400 text-base">那我们该怎样正确使用 AI 呢？看看这些小建议 👇</p>
             </div>
@@ -1119,8 +1136,8 @@ const SlideDeck = () => {
         return (
           <div className="flex flex-col h-full text-center">
             <div className="text-center pt-2">
-              <h2 className="text-5xl font-bold text-slate-800">拓展：AI 的参天大树</h2>
-              <p className="text-lg text-amber-600">🌳 给学有余力的&ldquo;小科学家&rdquo;们 —— 一棵树，看懂 AI 的全貌</p>
+              <h2 className="text-5xl font-bold text-slate-800">总结：AI 的参天大树</h2>
+              <p className="text-lg text-amber-600">一棵树，看懂 AI 的全貌 🌳</p>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center">
             <div className="flex items-center justify-center w-full max-w-3xl">
@@ -1132,9 +1149,9 @@ const SlideDeck = () => {
             </div>
 
             <p className="text-base text-slate-400 mt-4 max-w-2xl">
-              树根是 AI 的&ldquo;大脑&rdquo;（各种大模型），树干是&ldquo;工具&rdquo;（帮 AI 连接世界），枝叶就是我们能用的各种应用。
+              树根 = AI 的&ldquo;大脑&rdquo;（各种大模型），树干 = &ldquo;工具&rdquo;（连接世界），枝叶 = 各种应用。
               <br />
-              <span className="text-blue-500">那么在咱们的校园里，AI 都藏在哪些地方呢？翻到下一页，一起去发现吧！👉</span>
+              <span className="text-blue-500">AI 的世界很大，但这只是开始，未来由你来探索！👉</span>
             </p>
             </div>
           </div>
@@ -1142,7 +1159,7 @@ const SlideDeck = () => {
 
       case "end":
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
+          <div className="flex flex-col items-center justify-center h-full text-center relative">
             <h2 className="text-6xl font-black text-blue-600 mb-8">未来属于你！</h2>
             <div className="flex justify-center items-center space-x-8 mb-12">
               <div className="text-9xl animate-bounce">🧒</div>
@@ -1152,6 +1169,11 @@ const SlideDeck = () => {
             <p className="text-3xl font-bold text-slate-700 mb-8">好好学习，未来由你指挥这些"超级大脑"！</p>
             <div className="bg-white/80 backdrop-blur px-8 py-4 rounded-full shadow-lg">
               <p className="text-xl text-blue-500 font-mono">Mission Complete 🌟</p>
+            </div>
+            <div className="absolute bottom-3 left-6 text-xs text-slate-400/80 flex items-center gap-1.5">
+              <span>Designed by 苏欣</span>
+              <span className="text-slate-300">·</span>
+              <a href="mailto:277285619@qq.com" className="hover:text-blue-400 transition-colors cursor-pointer" title="点击发送邮件">277285619@qq.com</a>
             </div>
           </div>
         );
